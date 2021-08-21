@@ -1,53 +1,56 @@
 package model;
 
-//* Receiver enum for connection 
-enum RECEIVER_TYPE{
-    SERVER,
-    CLIENT
-}
+import javax.swing.JTextArea;
 
-class Receiver extends Thread{
+public class Receiver extends Thread {
 
-    //* enum for initialzing connection
+    // * enum for initialzing connection
     final RECEIVER_TYPE conType;
 
-    //* connection manager enum
-    private enum CONNECTION_MANAGER{
-        CLOSE_CONNECTION,
-        START_CONNECTION
+    // * chat panel
+    final JTextArea chatPanel;
+
+    // * connection manager enum
+    private enum CONNECTION_MANAGER {
+        CLOSE_CONNECTION, START_CONNECTION
     }
 
-    //* connection manager var
+    // * connection manager var
     CONNECTION_MANAGER manager = CONNECTION_MANAGER.CLOSE_CONNECTION;
 
-    Receiver(RECEIVER_TYPE type){
-       conType = type;
-    }   
+    // * chat string
+    String chatString;
+
+    public Receiver(RECEIVER_TYPE type, JTextArea chatPanel) {
+        conType = type;
+        this.chatPanel = chatPanel;
+    }
 
     @Override
-    public void run(){
-        //* start connection
+    public void run() {
+        // * start connection
         manager = CONNECTION_MANAGER.START_CONNECTION;
-
-        if(conType == RECEIVER_TYPE.CLIENT){
+        if (conType == RECEIVER_TYPE.CLIENT) {
             final Client client = Client.getInstance();
-           
-            while(manager != CONNECTION_MANAGER.CLOSE_CONNECTION){
-                //* code for widget 
+            
+            while (manager != CONNECTION_MANAGER.CLOSE_CONNECTION) {
+                chatPanel.append("\nServer : " + client.recieveMessage());
             }
-        }
-        else{
+
+            client.disposeServer();
+        } else {
             final Server server = Server.getInstance();
 
-            while(manager != CONNECTION_MANAGER.CLOSE_CONNECTION){
-                //* code for widget 
+            while (manager != CONNECTION_MANAGER.CLOSE_CONNECTION) {
+                chatPanel.append("\nClient : " + server.recieveMessage());
             }
+
+            server.disposeServer();
         }
     }
 
-    void dispose(){
+    public void dispose() {
         manager = CONNECTION_MANAGER.CLOSE_CONNECTION;
+
     }
 }
-
-
